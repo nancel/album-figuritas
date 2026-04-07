@@ -1,6 +1,6 @@
 # Album figuritas (Mundial)
 
-Aplicación web para llevar el control de un álbum de figuritas: qué tenés, qué falta y cuántos duplicados llevás. Pensada como herramienta personal de seguimiento (no es marketplace ni red social).
+Aplicación web para llevar el control de un **álbum compartido** entre varias personas: mismas figuritas, mismas cantidades (todos ven y editan el mismo estado). No es marketplace ni red social.
 
 ## Stack
 
@@ -34,6 +34,7 @@ cp .env.example .env.local
 |----------|-----|
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave **anon** (solo esta en el cliente; no uses la `service_role` en la app) |
+| `NEXT_PUBLIC_ALBUM_ID` | (Opcional) UUID del álbum si un usuario tiene varias membresías y querés fijar cuál usa la app |
 
 ### 3. Base de datos y seguridad
 
@@ -41,9 +42,19 @@ En el [SQL Editor](https://supabase.com/dashboard) de tu proyecto (o con la [CLI
 
 `supabase/migrations/20250406120000_initial_schema.sql`
 
-Eso crea las tablas `stickers` (catálogo de lectura pública) y `user_stickers` (filas por usuario con RLS), e inserta el catálogo inicial de ejemplo.
+Eso crea `albums`, `album_members`, `stickers` (catálogo por álbum), `album_sticker_quantities` (cantidades compartidas), políticas RLS e inserta un álbum de ejemplo y 60 figuritas (id de álbum de seed: `00000000-0000-4000-8000-000000000001`).
 
-En **Authentication → Providers**, habilitá **Email** (y ajustá confirmación por correo según prefieras).
+En **Authentication → Providers**, habilitá **Email**. Si querés evitar altas vía API, desactivá **Sign up** en la configuración de Email. **No hay registro en la app:** creá usuarios en Authentication (o vía SQL) y asocialos al álbum:
+
+```sql
+INSERT INTO public.album_members (album_id, user_id)
+VALUES (
+  '00000000-0000-4000-8000-000000000001',
+  'UUID-DEL-USUARIO-EN-AUTH-USERS'
+);
+```
+
+Los catálogos y altas de nuevos álbumes se gestionan manualmente en la base (sin pantalla en la app por ahora).
 
 ### 4. Desarrollo
 
@@ -51,7 +62,7 @@ En **Authentication → Providers**, habilitá **Email** (y ajustá confirmació
 npm run dev
 ```
 
-Abrí [http://localhost:3000](http://localhost:3000): inicio de sesión / registro en `/`, panel en `/dashboard`, colección en `/stickers`.
+Abrí [http://localhost:3000](http://localhost:3000): solo **inicio de sesión** en `/`, panel en `/dashboard`, colección en `/stickers`.
 
 ### Build de producción
 
@@ -62,8 +73,10 @@ npm start
 
 ## Modelo de datos (resumen)
 
-- **Catálogo `stickers`:** código, país, jugador, etc. Lectura pública; no se modifica desde la app con la anon key.
-- **`user_stickers`:** `user_id`, `sticker_id`, `quantity ≥ 1`. **Si no hay fila para un cromo, se considera que falta** (`quantity` efectivo 0 en la UI).
+- **`albums`:** cada álbum compartido (nombre, etc.).
+- **`album_members`:** qué usuario (`auth.users`) participa en qué álbum.
+- **`stickers`:** catálogo por `album_id` (no se edita desde la app con la anon key).
+- **`album_sticker_quantities`:** `album_id` + `sticker_id` + `quantity ≥ 1`. **Sin fila para un cromo en ese álbum ⇒ falta** (en la UI se muestra cantidad 0).
 
 ## Documentación del repo
 

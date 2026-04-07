@@ -10,7 +10,7 @@ Do NOT implement everything at once.
 
 ## 🟢 Phase 1 - Setup
 
-- Install supabase-js
+- Install supabase-js + @supabase/ssr
 - Create Supabase client
 - Add environment variables
 - Connect app to Supabase
@@ -22,48 +22,47 @@ Project can connect to Supabase
 
 ## 🟡 Phase 2 - Authentication
 
-- Create login page
-- Implement login/signup
+- Create login page (sign-in only; no public registration)
 - Persist session
 - Protect routes
 
 DONE when:
-User can login and access dashboard
+A user created in Supabase Auth can log in and access the dashboard
 
 ---
 
 ## 🟠 Phase 3 - Database
 
 - Create tables:
-  - stickers
-  - user_stickers
-- Insert sticker catalog
-- Configure RLS
+  - `albums`, `album_members`, `stickers` (per album), `album_sticker_quantities`
+- Insert sticker catalog (seed) tied to a sample album
+- Configure RLS (membership-based access)
 
 DONE when:
-User can query their own data only
+Members of an album can read/update shared quantities only for that album
 
 ---
 
 ## 🔵 Phase 4 - Read Data
 
 - Remove mock data
-- Fetch user stickers from Supabase
+- Resolve active album (`album_members`, optional `NEXT_PUBLIC_ALBUM_ID`)
+- Fetch catalog + quantity rows from Supabase
 - Map data to UI components
 
 DONE when:
-UI shows real data
+UI shows real shared data
 
 ---
 
 ## 🟣 Phase 5 - Write Data
 
 - Implement increment/decrement buttons
-- Update quantity in database
+- Update `album_sticker_quantities` (insert/update/delete; no row = missing)
 - Sync UI state
 
 DONE when:
-User can update sticker quantities
+Any member can update quantities and others see the same state
 
 ---
 
@@ -76,7 +75,7 @@ User can update sticker quantities
 - Render progress bar
 
 DONE when:
-Dashboard shows real stats
+Dashboard shows real stats for the shared album
 
 ---
 
@@ -101,8 +100,8 @@ Dashboard shows real stats
 ## 🧪 Definition of Done
 
 - User logs in
-- User sees stickers
-- User updates quantities
+- User sees stickers for an album they belong to
+- User updates quantities (shared with other members)
 - Missing and duplicates visible
 - Progress is calculated
 

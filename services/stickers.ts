@@ -9,16 +9,16 @@ export type StickerCatalogRow = {
   position: string;
 };
 
-export type UserStickerRow = {
+export type AlbumQuantityRow = {
   sticker_id: string;
   quantity: number;
 };
 
-export function mergeCatalogWithUserRows(
+export function mergeCatalogWithQuantities(
   catalog: StickerCatalogRow[],
-  userRows: UserStickerRow[]
+  quantityRows: AlbumQuantityRow[]
 ): Sticker[] {
-  const qtyBySticker = new Map(userRows.map((r) => [r.sticker_id, r.quantity]));
+  const qtyBySticker = new Map(quantityRows.map((r) => [r.sticker_id, r.quantity]));
   return catalog.map((row) => ({
     id: row.id,
     code: row.code,

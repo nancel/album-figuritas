@@ -10,9 +10,11 @@ import { cn } from "@/lib/utils";
 export function DashboardMain({
   stickers,
   userLabel,
+  albumTitle,
 }: {
   stickers: Sticker[];
   userLabel: string;
+  albumTitle?: string | null;
 }) {
   const { owned, missing, duplicates, progress, countryStats, total } =
     computeAlbumStats(stickers);
@@ -36,6 +38,9 @@ export function DashboardMain({
             <h1 id="greeting-heading" className="font-display text-2xl font-bold uppercase tracking-wide mt-0.5">
               {userLabel}
             </h1>
+            {albumTitle ? (
+              <p className="mt-1 text-sm font-medium text-primary-foreground/85">Álbum compartido · {albumTitle}</p>
+            ) : null}
             <p className="mt-1 text-sm text-primary-foreground/80">
               Continúa — ¡estás al {progress.toFixed(0)}% completado!
             </p>

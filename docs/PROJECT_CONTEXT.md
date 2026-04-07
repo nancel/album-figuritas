@@ -1,10 +1,10 @@
 # 🏆 Project Context - Sticker Album App
 
 ## 🎯 Goal
-Build a web app to track a World Cup sticker album shared between users.
+Build a web app to track a World Cup sticker album **shared by several users**.
 
 Users can:
-- Track owned stickers
+- Track owned stickers (per shared album)
 - Identify missing stickers
 - Detect duplicates
 - View overall progress
@@ -13,12 +13,12 @@ Users can:
 
 ## 🧠 Core Concept
 
-Each user manages their own collection, but the goal is to complete a shared album.
+**One album** (row in `albums`) has a **sticker catalog** and **shared quantities**: every member of that album sees and updates the **same** counts. Missing stickers are represented by **no row** in the quantity table (or effective quantity 0 in the UI).
 
 The app is NOT a marketplace.
 The app is NOT social (for now).
 
-It is a **personal + shared tracking tool**.
+It is a **shared tracking tool** for a small group working on the same physical album.
 
 ---
 
@@ -47,24 +47,34 @@ This is intentional to:
 
 ## 📊 Data Model
 
-### stickers (catalog)
+### albums
 - id (uuid)
-- code (text)
-- country (text)
-- player_name (text)
+- name (text)
 
-### user_stickers
+### album_members
+- album_id (uuid)
+- user_id (uuid, references auth.users)
+- Primary key (album_id, user_id)
+
+### stickers (catalog per album)
 - id (uuid)
-- user_id (uuid)
+- album_id (uuid)
+- code (text), country (text), player_name (text), country_code (text), position (text)
+- Unique (album_id, code)
+
+### album_sticker_quantities
+- id (uuid)
+- album_id (uuid)
 - sticker_id (uuid)
-- quantity (int)
+- quantity (int, ≥ 1 only; **no row** for that sticker in that album → missing)
 
 ---
 
 ## 🔐 Security Model
 
-- Users can ONLY access their own data
-- Enforced via Supabase RLS
+- Only **authenticated** users who appear in `album_members` for an album can read that album’s stickers and quantities, and can insert/update/delete quantity rows for that album.
+- Catalog rows (`stickers`) are not edited from the app (managed in DB).
+- New users, albums, and memberships are **not** created from the app in the MVP (manual / Supabase dashboard).
 
 ---
 
@@ -72,7 +82,8 @@ This is intentional to:
 
 - No trading system
 - No notifications
-- No multi-group sharing
+- No UI to create albums or invite users (data entry is manual in the database)
+- No public self-service registration (login only for accounts created in Supabase)
 - No real-time sync
 
 ---
@@ -88,6 +99,6 @@ This is intentional to:
 
 ## ⚡ Key Behaviors
 
-- quantity = 0 → missing
+- quantity = 0 (no row in `album_sticker_quantities`) → missing
 - quantity = 1 → owned
 - quantity > 1 → duplicate

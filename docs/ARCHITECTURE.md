@@ -23,7 +23,7 @@ There is NO custom backend in this project.
 app/
   dashboard/
   stickers/
-  login/
+  page.tsx (login)
 
 components/
   StickerCard.tsx
@@ -34,10 +34,10 @@ lib/
   supabase/
     client.ts
     server.ts
+  album.ts (resolve active album for the logged-in user)
 
 services/
   stickers.ts
-  auth.ts
 
 types/
 
@@ -48,6 +48,7 @@ types/
 We use the official SDK:
 
 @supabase/supabase-js
+@supabase/ssr (Next.js: browser + server clients, middleware session refresh)
 
 ### Client usage
 
@@ -66,8 +67,9 @@ We use the official SDK:
 
 ## 🔐 Authentication
 
-- Supabase Auth (email + password)
-- Session handled by Supabase
+- Supabase Auth (email + password), **sign-in only** in the app (no sign-up UI)
+- New users are created outside the app (Supabase Auth UI / SQL / admin)
+- Session handled by Supabase (`@supabase/ssr`)
 
 Always validate user:
 
@@ -79,13 +81,13 @@ const { data: { user } } = await supabase.auth.getUser()
 
 Row Level Security is REQUIRED.
 
-Rule:
+Rules (summary):
 
-auth.uid() = user_id
+- **`album_members`**: a user can read rows where `user_id = auth.uid()` (their memberships).
+- **`albums`**, **`stickers`**, **`album_sticker_quantities`**: access only if there is a membership row linking `auth.uid()` to that `album_id`.
+- Quantity changes are **shared** for all members of the album (same rows).
 
-This ensures:
-- Users only access their own data
-- No backend needed for authorization
+Do NOT expose `service_role` in the client.
 
 ---
 

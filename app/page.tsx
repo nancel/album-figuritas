@@ -13,13 +13,10 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setInfo("");
     if (!email || !password) {
       setError("Por favor completa todos los campos.");
       return;
@@ -27,37 +24,17 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const supabase = createBrowserSupabaseClient();
-      if (isSignUp) {
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (signUpError) {
-          setError(signUpError.message);
-          setLoading(false);
-          return;
-        }
-        if (data.session) {
-          router.push("/dashboard");
-          router.refresh();
-        } else {
-          setInfo(
-            "Cuenta creada. Si tu proyecto Supabase exige confirmación por correo, revisá tu bandeja de entrada."
-          );
-        }
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (signInError) {
-          setError(signInError.message);
-          setLoading(false);
-          return;
-        }
-        router.push("/dashboard");
-        router.refresh();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
       }
+      router.push("/dashboard");
+      router.refresh();
     } catch (err) {
       setError(
         err instanceof Error
@@ -91,9 +68,7 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
-          <h2 className="mb-5 text-lg font-semibold text-foreground">
-            {isSignUp ? "Crear cuenta" : "Inicia sesión en tu álbum"}
-          </h2>
+          <h2 className="mb-5 text-lg font-semibold text-foreground">Iniciar sesión</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
@@ -123,7 +98,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type={showPw ? "text" : "password"}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -153,15 +128,6 @@ export default function LoginPage() {
               </p>
             )}
 
-            {info && (
-              <p
-                role="status"
-                className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-xs text-foreground"
-              >
-                {info}
-              </p>
-            )}
-
             <button
               type="submit"
               disabled={loading}
@@ -173,29 +139,12 @@ export default function LoginPage() {
               )}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading
-                ? isSignUp
-                  ? "Creando cuenta…"
-                  : "Iniciando sesión…"
-                : isSignUp
-                  ? "Registrarse"
-                  : "Iniciar Sesión"}
+              {loading ? "Iniciando sesión…" : "Iniciar Sesión"}
             </button>
           </form>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            {isSignUp ? "¿Ya tenés cuenta? " : "¿No tenés cuenta? "}
-            <button
-              type="button"
-              className="font-semibold text-primary hover:underline"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError("");
-                setInfo("");
-              }}
-            >
-              {isSignUp ? "Iniciar sesión" : "Crear cuenta"}
-            </button>
+          <p className="mt-4 text-center text-xs text-muted-foreground leading-relaxed">
+            Las cuentas se crean desde el panel de Supabase (o SQL). No hay registro público en esta app.
           </p>
         </div>
       </div>

@@ -20,10 +20,12 @@ const FILTERS: { value: Filter; label: string }[] = [
 
 export default function StickersClient({
   initialStickers,
-  userId,
+  albumId,
+  albumTitle,
 }: {
   initialStickers: Sticker[];
-  userId: string;
+  albumId: string;
+  albumTitle?: string | null;
 }) {
   const searchParams = useSearchParams();
   const initialFilter = (searchParams.get("filter") as Filter) ?? "all";
@@ -48,9 +50,9 @@ export default function StickersClient({
       const supabase = createBrowserSupabaseClient();
 
       const { data: row, error: readErr } = await supabase
-        .from("user_stickers")
+        .from("album_sticker_quantities")
         .select("quantity")
-        .eq("user_id", userId)
+        .eq("album_id", albumId)
         .eq("sticker_id", id)
         .maybeSingle();
 
@@ -62,24 +64,24 @@ export default function StickersClient({
       const currentQty = row?.quantity ?? 0;
 
       if (currentQty === 0) {
-        const { error } = await supabase.from("user_stickers").insert({
-          user_id: userId,
+        const { error } = await supabase.from("album_sticker_quantities").insert({
+          album_id: albumId,
           sticker_id: id,
           quantity: 1,
         });
         if (error) {
           if (error.code === "23505") {
             const { data: again } = await supabase
-              .from("user_stickers")
+              .from("album_sticker_quantities")
               .select("quantity")
-              .eq("user_id", userId)
+              .eq("album_id", albumId)
               .eq("sticker_id", id)
               .maybeSingle();
             const q = (again?.quantity ?? 0) + 1;
             const { error: upErr } = await supabase
-              .from("user_stickers")
+              .from("album_sticker_quantities")
               .update({ quantity: q })
-              .eq("user_id", userId)
+              .eq("album_id", albumId)
               .eq("sticker_id", id);
             if (upErr) {
               setSyncError(upErr.message);
@@ -101,9 +103,9 @@ export default function StickersClient({
 
       const next = currentQty + 1;
       const { error } = await supabase
-        .from("user_stickers")
+        .from("album_sticker_quantities")
         .update({ quantity: next })
-        .eq("user_id", userId)
+        .eq("album_id", albumId)
         .eq("sticker_id", id);
 
       if (error) {
@@ -114,7 +116,7 @@ export default function StickersClient({
         prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
       );
     },
-    [userId]
+    [albumId]
   );
 
   const persistDecrement = useCallback(
@@ -123,9 +125,9 @@ export default function StickersClient({
       const supabase = createBrowserSupabaseClient();
 
       const { data: row, error: readErr } = await supabase
-        .from("user_stickers")
+        .from("album_sticker_quantities")
         .select("quantity")
-        .eq("user_id", userId)
+        .eq("album_id", albumId)
         .eq("sticker_id", id)
         .maybeSingle();
 
@@ -139,9 +141,9 @@ export default function StickersClient({
 
       if (currentQty === 1) {
         const { error } = await supabase
-          .from("user_stickers")
+          .from("album_sticker_quantities")
           .delete()
-          .eq("user_id", userId)
+          .eq("album_id", albumId)
           .eq("sticker_id", id);
 
         if (error) {
@@ -156,9 +158,9 @@ export default function StickersClient({
 
       const next = currentQty - 1;
       const { error } = await supabase
-        .from("user_stickers")
+        .from("album_sticker_quantities")
         .update({ quantity: next })
-        .eq("user_id", userId)
+        .eq("album_id", albumId)
         .eq("sticker_id", id);
 
       if (error) {
@@ -169,7 +171,7 @@ export default function StickersClient({
         prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
       );
     },
-    [userId]
+    [albumId]
   );
 
   function increment(id: string) {
@@ -214,10 +216,13 @@ export default function StickersClient({
       <main className="mx-auto max-w-2xl px-4 py-6 space-y-5">
         <div>
           <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-foreground">
-            Mi Colección
+            Colección compartida
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Toca + / − para actualizar tus figuritas
+          {albumTitle ? (
+            <p className="text-sm font-medium text-foreground/90 mt-0.5">{albumTitle}</p>
+          ) : null}
+          <p className="text-sm text-muted-foreground mt-1">
+            Los cambios se guardan para todo el grupo. Toca + / − para actualizar cantidades.
           </p>
         </div>
 

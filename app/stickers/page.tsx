@@ -1,7 +1,10 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { Navbar } from "@/components/navbar";
+import { NoAlbumAccess } from "@/components/no-album-access";
+import { resolveAlbumIdForUser } from "@/lib/album";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { mergeCatalogWithUserRows } from "@/services/stickers";
+import { mergeCatalogWithQuantities } from "@/services/stickers";
 import StickersClient from "./stickers-client";
 
 export default async function Page() {
@@ -11,21 +14,34 @@ export default async function Page() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
+  const albumId = await resolveAlbumIdForUser(supabase, user.id);
+  if (!albumId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <NoAlbumAccess />
+      </div>
+    );
+  }
+
+  const { data: albumRow } = await supabase.from("albums").select("name").eq("id", albumId).single();
+
   const { data: catalog } = await supabase
     .from("stickers")
     .select("id, code, country, player_name, country_code, position")
+    .eq("album_id", albumId)
     .order("code", { ascending: true });
 
-  const { data: userRows } = await supabase
-    .from("user_stickers")
+  const { data: qtyRows } = await supabase
+    .from("album_sticker_quantities")
     .select("sticker_id, quantity")
-    .eq("user_id", user.id);
+    .eq("album_id", albumId);
 
-  const initialStickers = mergeCatalogWithUserRows(catalog ?? [], userRows ?? []);
+  const initialStickers = mergeCatalogWithQuantities(catalog ?? [], qtyRows ?? []);
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <StickersClient initialStickers={initialStickers} userId={user.id} />
+      <StickersClient initialStickers={initialStickers} albumId={albumId} albumTitle={albumRow?.name ?? null} />
     </Suspense>
   );
 }
