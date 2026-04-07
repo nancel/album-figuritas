@@ -1,6 +1,6 @@
 "use client";
 
-import { type Sticker } from "@/lib/mock-data";
+import type { Sticker } from "@/types/sticker";
 import { StickerCard } from "@/components/sticker-card";
 
 interface StickerGridProps {

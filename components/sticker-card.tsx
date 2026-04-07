@@ -2,7 +2,8 @@
 
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type Sticker, countryFlags, countryColors } from "@/lib/mock-data";
+import { countryFlags, countryColors } from "@/lib/mock-data";
+import type { Sticker } from "@/types/sticker";
 
 interface StickerCardProps {
   sticker: Sticker;

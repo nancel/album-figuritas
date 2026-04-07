@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,31 +13,69 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setInfo("");
     if (!email || !password) {
       setError("Por favor completa todos los campos.");
       return;
     }
     setLoading(true);
-    // Simulate auth delay
-    await new Promise((r) => setTimeout(r, 900));
+    try {
+      const supabase = createBrowserSupabaseClient();
+      if (isSignUp) {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (signUpError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
+        }
+        if (data.session) {
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          setInfo(
+            "Cuenta creada. Si tu proyecto Supabase exige confirmación por correo, revisá tu bandeja de entrada."
+          );
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) {
+          setError(signInError.message);
+          setLoading(false);
+          return;
+        }
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo conectar. Comprobá las variables NEXT_PUBLIC_SUPABASE_* en .env.local."
+      );
+    }
     setLoading(false);
-    router.push("/dashboard");
   }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-      {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-primary/5" />
         <div className="absolute -bottom-10 -right-10 h-56 w-56 rounded-full bg-accent/10" />
       </div>
 
       <div className="relative w-full max-w-sm">
-        {/* Brand mark */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
             <Trophy className="h-8 w-8" />
@@ -45,16 +84,18 @@ export default function LoginPage() {
             <h1 className="font-display text-3xl font-bold uppercase tracking-wider text-foreground">
               Album-Mundial<span className="text-accent">26</span>
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">Administrador de álbum de figuritas - Mundial 2026</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Administrador de álbum de figuritas - Mundial 2026
+            </p>
           </div>
         </div>
 
-        {/* Card */}
         <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
-          <h2 className="mb-5 text-lg font-semibold text-foreground">Inicia sesión en tu álbum</h2>
+          <h2 className="mb-5 text-lg font-semibold text-foreground">
+            {isSignUp ? "Crear cuenta" : "Inicia sesión en tu álbum"}
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Email */}
             <div className="space-y-1.5">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Correo
@@ -74,7 +115,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <label htmlFor="password" className="text-sm font-medium text-foreground">
                 Contraseña
@@ -83,7 +123,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type={showPw ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -104,14 +144,24 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
-              <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 border border-rose-100">
+              <p
+                role="alert"
+                className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 border border-rose-100"
+              >
                 {error}
               </p>
             )}
 
-            {/* Submit */}
+            {info && (
+              <p
+                role="status"
+                className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-xs text-foreground"
+              >
+                {info}
+              </p>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -123,12 +173,29 @@ export default function LoginPage() {
               )}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? "Iniciando sesión…" : "Iniciar Sesión"}
+              {loading
+                ? isSignUp
+                  ? "Creando cuenta…"
+                  : "Iniciando sesión…"
+                : isSignUp
+                  ? "Registrarse"
+                  : "Iniciar Sesión"}
             </button>
           </form>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo: cualquier correo y contraseña funciona.
+            {isSignUp ? "¿Ya tenés cuenta? " : "¿No tenés cuenta? "}
+            <button
+              type="button"
+              className="font-semibold text-primary hover:underline"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError("");
+                setInfo("");
+              }}
+            >
+              {isSignUp ? "Iniciar sesión" : "Crear cuenta"}
+            </button>
           </p>
         </div>
       </div>
