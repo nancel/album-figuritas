@@ -59,7 +59,7 @@ This is intentional to:
 ### stickers (catalog per album)
 - id (uuid)
 - album_id (uuid)
-- code (text), country (text), player_name (text), country_code (text), position (text)
+- code (text), name (text), country (text, nullable), type (text)
 - Unique (album_id, code)
 
 ### album_sticker_quantities

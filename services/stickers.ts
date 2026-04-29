@@ -3,10 +3,9 @@ import type { Sticker } from "@/types/sticker";
 export type StickerCatalogRow = {
   id: string;
   code: string;
-  country: string;
-  player_name: string;
-  country_code: string;
-  position: string;
+  name: string;
+  country: string | null;
+  type: string;
 };
 
 export type AlbumQuantityRow = {
@@ -22,10 +21,9 @@ export function mergeCatalogWithQuantities(
   return catalog.map((row) => ({
     id: row.id,
     code: row.code,
-    playerName: row.player_name,
+    name: row.name,
     country: row.country,
-    countryCode: row.country_code,
-    position: row.position,
+    type: row.type,
     quantity: qtyBySticker.get(row.id) ?? 0,
   }));
 }
@@ -40,7 +38,6 @@ export type AlbumStats = {
     name: string;
     total: number;
     owned: number;
-    code: string;
     pct: number;
   }[];
 };
@@ -53,10 +50,11 @@ export function computeAlbumStats(stickers: Sticker[]): AlbumStats {
   const progress = total ? (owned / total) * 100 : 0;
 
   const byCountry = stickers.reduce<
-    Record<string, { total: number; owned: number; code: string }>
+    Record<string, { total: number; owned: number }>
   >((acc, s) => {
-    if (!acc[s.country]) acc[s.country] = { total: 0, owned: 0, code: s.countryCode };
-    acc[s.country].total++;
+    if (!s.country) return acc;
+    if (!acc[s.country]) acc[s.country] = { total: 0, owned: 0 };
+    acc[s.country].total += 1;
     if (s.quantity > 0) acc[s.country].owned++;
     return acc;
   }, {});

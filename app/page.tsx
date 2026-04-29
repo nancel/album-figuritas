@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trophy, Eye, EyeOff, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
@@ -54,12 +55,19 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
-            <Trophy className="h-8 w-8" />
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl shadow-lg ring-1 ring-border/50">
+            <Image
+              src="/mundial_2026.png"
+              alt="Mundial 2026"
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+              priority
+            />
           </div>
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold uppercase tracking-wider text-foreground">
-              Album-Mundial<span className="text-accent">26</span>
+              Album-Mundial<span className="text-accent">-26</span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Administrador de álbum de figuritas - Mundial 2026
@@ -144,7 +152,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-4 text-center text-xs text-muted-foreground leading-relaxed">
-            Las cuentas se crean desde el panel de Supabase (o SQL). No hay registro público en esta app.
+            Las cuentas se crean manualmente, pedir al tío néstor que te cree una.
           </p>
         </div>
       </div>

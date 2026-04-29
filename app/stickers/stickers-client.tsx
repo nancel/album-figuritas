@@ -191,8 +191,9 @@ export default function StickersClient({
       const q = search.toLowerCase();
       list = list.filter(
         (s) =>
-          s.playerName.toLowerCase().includes(q) ||
-          s.country.toLowerCase().includes(q) ||
+          s.name.toLowerCase().includes(q) ||
+          (s.country ?? "").toLowerCase().includes(q) ||
+          s.type.toLowerCase().includes(q) ||
           s.code.toLowerCase().includes(q)
       );
     }
@@ -239,7 +240,7 @@ export default function StickersClient({
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
-            placeholder="Busca jugador, país o código…"
+            placeholder="Busca nombre, país, tipo o código…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={cn(

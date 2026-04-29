@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, Globe2, Star, TrendingUp } from "lucide-react";
-import { countryFlags } from "@/lib/mock-data";
 import { ProgressBar } from "@/components/progress-bar";
 import { SummaryCards } from "@/components/summary-cards";
 import { computeAlbumStats } from "@/services/stickers";
@@ -119,14 +118,11 @@ export function DashboardMain({
           Países
         </h2>
         <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border overflow-hidden">
-          {countryStats.map(({ name, owned: cOwned, total: cTotal, pct, code }) => (
+          {countryStats.map(({ name, owned: cOwned, total: cTotal, pct }) => (
             <div
               key={name}
               className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors"
             >
-              <span className="text-xl leading-none" aria-hidden="true">
-                {countryFlags[code] ?? "🏳️"}
-              </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-foreground truncate">{name}</span>

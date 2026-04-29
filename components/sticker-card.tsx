@@ -2,7 +2,6 @@
 
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { countryFlags, countryColors } from "@/lib/mock-data";
 import type { Sticker } from "@/types/sticker";
 
 interface StickerCardProps {
@@ -15,9 +14,6 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
   const isMissing   = sticker.quantity === 0;
   const isDuplicate = sticker.quantity > 1;
   const isOwned     = sticker.quantity === 1;
-  const flag        = countryFlags[sticker.countryCode] ?? "🏳️";
-  const colors      = countryColors[sticker.countryCode] ?? { bg: "bg-gray-100", text: "text-gray-700" };
-
   return (
     <div
       className={cn(
@@ -40,26 +36,27 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
         <span className="font-display text-[11px] font-semibold tracking-widest text-muted-foreground uppercase">
           {sticker.code}
         </span>
-        <span className="text-base leading-none" aria-hidden="true">{flag}</span>
       </div>
 
-      {/* Player name */}
+      {/* Sticker name */}
       <p
         className={cn(
           "text-sm font-semibold leading-tight text-balance mb-1",
           isMissing ? "text-muted-foreground" : "text-foreground"
         )}
       >
-        {sticker.playerName}
+        {sticker.name}
       </p>
 
-      {/* Country + position */}
+      {/* Country + type */}
       <div className="flex flex-wrap gap-1 mb-3">
-        <span className={cn("rounded-md px-1.5 py-0.5 text-[10px] font-medium", colors.bg, colors.text)}>
-          {sticker.country}
-        </span>
+        {sticker.country ? (
+          <span className="rounded-md bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-800">
+            {sticker.country}
+          </span>
+        ) : null}
         <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-          {sticker.position}
+          {sticker.type}
         </span>
       </div>
 
@@ -68,7 +65,7 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
         <button
           onClick={() => onDecrement(sticker.id)}
           disabled={sticker.quantity === 0}
-          aria-label={`Quitar una figurita de ${sticker.playerName}`}
+          aria-label={`Quitar una figurita de ${sticker.name}`}
           className={cn(
             "flex h-7 w-7 items-center justify-center rounded-full border transition-all",
             "active:scale-90",
@@ -91,7 +88,7 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
 
         <button
           onClick={() => onIncrement(sticker.id)}
-          aria-label={`Añadir una figurita de ${sticker.playerName}`}
+          aria-label={`Añadir una figurita de ${sticker.name}`}
           className="flex h-7 w-7 items-center justify-center rounded-full border border-primary bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-90"
         >
           <Plus className="h-3 w-3" />

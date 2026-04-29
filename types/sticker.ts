@@ -1,9 +1,8 @@
 export type Sticker = {
   id: string;
   code: string;
-  playerName: string;
-  country: string;
-  countryCode: string;
-  position: string;
+  name: string;
+  country: string | null;
+  type: string;
   quantity: number;
 };

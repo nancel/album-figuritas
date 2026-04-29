@@ -42,7 +42,19 @@ En el [SQL Editor](https://supabase.com/dashboard) de tu proyecto (o con la [CLI
 
 `supabase/migrations/20250406120000_initial_schema.sql`
 
-Eso crea `albums`, `album_members`, `stickers` (catálogo por álbum), `album_sticker_quantities` (cantidades compartidas), políticas RLS e inserta un álbum de ejemplo y 60 figuritas (id de álbum de seed: `00000000-0000-4000-8000-000000000001`).
+Eso crea `albums`, `album_members`, `stickers` (catálogo por álbum), `album_sticker_quantities` (cantidades compartidas), políticas RLS e inserta un álbum de ejemplo (id: `00000000-0000-4000-8000-000000000001`).
+
+Para cargar el catálogo final de 1175 figuritas:
+
+```bash
+node scripts/generate-stickers-seed.mjs
+```
+
+El comando genera:
+- `supabase/seeds/2026_stickers_inserts.sql` (script SQL con inserts)
+- `data/paises.txt` (listado de países detectados)
+
+Luego ejecutá `supabase/seeds/2026_stickers_inserts.sql` en Supabase SQL Editor.
 
 En **Authentication → Providers**, habilitá **Email**. Si querés evitar altas vía API, desactivá **Sign up** en la configuración de Email. **No hay registro en la app:** creá usuarios en Authentication (o vía SQL) y asocialos al álbum:
 
@@ -75,7 +87,7 @@ npm start
 
 - **`albums`:** cada álbum compartido (nombre, etc.).
 - **`album_members`:** qué usuario (`auth.users`) participa en qué álbum.
-- **`stickers`:** catálogo por `album_id` (no se edita desde la app con la anon key).
+- **`stickers`:** catálogo por `album_id` con `code`, `name`, `country` (nullable), `type`.
 - **`album_sticker_quantities`:** `album_id` + `sticker_id` + `quantity ≥ 1`. **Sin fila para un cromo en ese álbum ⇒ falta** (en la UI se muestra cantidad 0).
 
 ## Documentación del repo

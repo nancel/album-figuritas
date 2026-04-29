@@ -7,7 +7,7 @@ const _inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const _barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: 'ALBUM-MUNDIAL26',
+  title: 'ALBUM-MUNDIAL-26',
   description: 'Administrador de colección de figuritas del Mundial — ve lo que tienes, lo que necesitas y tus duplicados.',
   generator: 'v0.app',
   icons: {

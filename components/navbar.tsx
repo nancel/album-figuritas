@@ -1,13 +1,14 @@
 "use client";
 
-import { Trophy, LayoutGrid, LogOut } from "lucide-react";
+import Image from "next/image";
+import { LayoutDashboard, LayoutGrid, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { href: "/dashboard", label: "Panel", icon: Trophy },
+  { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
   { href: "/stickers", label: "Colección", icon: LayoutGrid },
 ];
 
@@ -26,11 +27,17 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-sm shadow-sm">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 group">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm group-hover:scale-105 transition-transform">
-            <Trophy className="h-4 w-4" />
+          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-border/50 group-hover:scale-105 transition-transform">
+            <Image
+              src="/mundial_2026.png"
+              alt="Mundial 2026"
+              width={32}
+              height={32}
+              className="h-full w-full object-cover"
+            />
           </div>
           <span className="font-display text-lg font-bold tracking-wide text-foreground uppercase">
-            Album-Mundial<span className="text-accent">26</span>
+            Album-Mundial<span className="text-accent">-26</span>
           </span>
         </Link>
 
