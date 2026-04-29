@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Globe2, Star, TrendingUp } from "lucide-react";
+import { ArrowRight, Globe2, History, Star, TrendingUp } from "lucide-react";
 import { ProgressBar } from "@/components/progress-bar";
 import { SummaryCards } from "@/components/summary-cards";
+import type { RecentQuantityChange } from "@/services/quantity-events";
 import { computeAlbumStats } from "@/services/stickers";
 import type { Sticker } from "@/types/sticker";
 import { cn } from "@/lib/utils";
@@ -10,10 +11,12 @@ export function DashboardMain({
   stickers,
   userLabel,
   albumTitle,
+  recentChanges,
 }: {
   stickers: Sticker[];
   userLabel: string;
   albumTitle?: string | null;
+  recentChanges: RecentQuantityChange[];
 }) {
   const { owned, missing, duplicates, progress, countryStats, total } =
     computeAlbumStats(stickers);
@@ -56,6 +59,48 @@ export function DashboardMain({
           Resumen del Álbum
         </h2>
         <SummaryCards total={total} owned={owned} missing={missing} duplicates={duplicates} />
+      </section>
+
+      <section aria-labelledby="recent-heading">
+        <h2
+          id="recent-heading"
+          className="font-display text-base font-bold uppercase tracking-wider text-foreground mb-3 flex items-center gap-2"
+        >
+          <History className="h-4 w-4 text-muted-foreground" aria-hidden />
+          Últimos cambios
+        </h2>
+        {recentChanges.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+            Todavía no hay movimientos registrados. Sumá o restá figuritas en la colección para ver el historial aquí.
+          </p>
+        ) : (
+          <ul className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border overflow-hidden">
+            {recentChanges.map((row, i) => (
+              <li
+                key={`${row.createdAt}-${row.code}-${row.delta}-${i}`}
+                className="px-4 py-2.5 text-sm leading-relaxed text-foreground"
+              >
+                <span className="text-muted-foreground">&apos;{row.code}&apos;</span>
+                <span className="text-muted-foreground">, </span>
+                <span className="text-muted-foreground">&apos;{row.name}&apos;</span>
+                <span className="text-muted-foreground">, </span>
+                <span className="text-muted-foreground">
+                  &apos;{row.country ?? "—"}&apos;
+                </span>{" "}
+                <span
+                  className={cn(
+                    "font-semibold tabular-nums",
+                    row.delta > 0 ? "text-emerald-600" : "text-rose-600"
+                  )}
+                >
+                  {row.delta > 0 ? "+" : ""}
+                  {row.delta}
+                </span>{" "}
+                <span className="font-medium text-foreground">{row.actorLabel}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section aria-labelledby="actions-heading">

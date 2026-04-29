@@ -4,6 +4,8 @@ import { DashboardMain } from "@/components/dashboard-main";
 import { NoAlbumAccess } from "@/components/no-album-access";
 import { resolveAlbumIdForUser } from "@/lib/album";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { displayLabelFromUser } from "@/lib/user-display";
+import { fetchRecentQuantityChanges } from "@/services/quantity-events";
 import { mergeCatalogWithQuantities } from "@/services/stickers";
 
 const PAGE_SIZE = 1000;
@@ -80,21 +82,24 @@ export default async function DashboardPage() {
 
   const { data: albumRow } = await supabase.from("albums").select("name").eq("id", albumId).single();
 
-  const [catalog, qtyRows] = await Promise.all([
+  const [catalog, qtyRows, recentChanges] = await Promise.all([
     fetchAllCatalog(supabase, albumId),
     fetchAllQuantities(supabase, albumId),
+    fetchRecentQuantityChanges(supabase, albumId, 15),
   ]);
 
   const stickers = mergeCatalogWithQuantities(catalog ?? [], qtyRows ?? []);
-  const userLabel =
-    (typeof user.user_metadata?.name === "string" && user.user_metadata.name) ||
-    user.email?.split("@")[0] ||
-    "Coleccionista";
+  const userLabel = displayLabelFromUser(user);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <DashboardMain stickers={stickers} userLabel={userLabel} albumTitle={albumRow?.name ?? null} />
+      <DashboardMain
+        stickers={stickers}
+        userLabel={userLabel}
+        albumTitle={albumRow?.name ?? null}
+        recentChanges={recentChanges}
+      />
     </div>
   );
 }

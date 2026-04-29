@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import type { Sticker } from "@/types/sticker";
+import { logStickerQuantityEvent } from "@/lib/quantity-event-log";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { Navbar } from "@/components/navbar";
 import { StickerGrid } from "@/components/sticker-grid";
@@ -87,6 +88,7 @@ export default function StickersClient({
               setSyncError(upErr.message);
               return;
             }
+            await logStickerQuantityEvent(supabase, albumId, id, +1);
             setStickers((prev) =>
               prev.map((s) => (s.id === id ? { ...s, quantity: q } : s))
             );
@@ -95,6 +97,7 @@ export default function StickersClient({
           setSyncError(error.message);
           return;
         }
+        await logStickerQuantityEvent(supabase, albumId, id, +1);
         setStickers((prev) =>
           prev.map((s) => (s.id === id ? { ...s, quantity: 1 } : s))
         );
@@ -112,6 +115,7 @@ export default function StickersClient({
         setSyncError(error.message);
         return;
       }
+      await logStickerQuantityEvent(supabase, albumId, id, +1);
       setStickers((prev) =>
         prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
       );
@@ -150,6 +154,7 @@ export default function StickersClient({
           setSyncError(error.message);
           return;
         }
+        await logStickerQuantityEvent(supabase, albumId, id, -1);
         setStickers((prev) =>
           prev.map((s) => (s.id === id ? { ...s, quantity: 0 } : s))
         );
@@ -167,6 +172,7 @@ export default function StickersClient({
         setSyncError(error.message);
         return;
       }
+      await logStickerQuantityEvent(supabase, albumId, id, -1);
       setStickers((prev) =>
         prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
       );
