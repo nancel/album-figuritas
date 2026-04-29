@@ -5,11 +5,17 @@ import { StickerCard } from "@/components/sticker-card";
 
 interface StickerGridProps {
   stickers: Sticker[];
-  onIncrement: (id: string) => void;
-  onDecrement: (id: string) => void;
+  pendingStickerId: string | null;
+  onIncrement: (id: string) => void | Promise<void>;
+  onDecrement: (id: string) => void | Promise<void>;
 }
 
-export function StickerGrid({ stickers, onIncrement, onDecrement }: StickerGridProps) {
+export function StickerGrid({
+  stickers,
+  pendingStickerId,
+  onIncrement,
+  onDecrement,
+}: StickerGridProps) {
   if (stickers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
@@ -26,6 +32,7 @@ export function StickerGrid({ stickers, onIncrement, onDecrement }: StickerGridP
         <StickerCard
           key={sticker.id}
           sticker={sticker}
+          isSaving={pendingStickerId === sticker.id}
           onIncrement={onIncrement}
           onDecrement={onDecrement}
         />

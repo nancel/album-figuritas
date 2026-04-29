@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { LayoutDashboard, LayoutGrid, LogOut } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -15,12 +16,19 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   async function handleLogout() {
-    const supabase = createBrowserSupabaseClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    setLogoutLoading(true);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push("/");
+      router.refresh();
+    } catch {
+      setLogoutLoading(false);
+    }
   }
 
   return (
@@ -60,11 +68,21 @@ export function Navbar() {
 
           <button
             type="button"
+            disabled={logoutLoading}
             onClick={() => void handleLogout()}
-            className="ml-2 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            aria-label="Cerrar sesión"
+            className={cn(
+              "ml-2 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              logoutLoading
+                ? "cursor-not-allowed text-muted-foreground/60"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+            aria-label={logoutLoading ? "Cerrando sesión…" : "Cerrar sesión"}
           >
-            <LogOut className="h-4 w-4" />
+            {logoutLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
           </button>
         </nav>
       </div>

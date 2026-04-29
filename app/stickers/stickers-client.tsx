@@ -35,6 +35,7 @@ export default function StickersClient({
   const [activeFilter, setFilter] = useState<Filter>(initialFilter);
   const [search, setSearch] = useState("");
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [pendingStickerId, setPendingStickerId] = useState<string | null>(null);
 
   useEffect(() => {
     setStickers(initialStickers);
@@ -180,12 +181,24 @@ export default function StickersClient({
     [albumId]
   );
 
-  function increment(id: string) {
-    void persistIncrement(id);
+  async function increment(id: string) {
+    if (pendingStickerId) return;
+    setPendingStickerId(id);
+    try {
+      await persistIncrement(id);
+    } finally {
+      setPendingStickerId(null);
+    }
   }
 
-  function decrement(id: string) {
-    void persistDecrement(id);
+  async function decrement(id: string) {
+    if (pendingStickerId) return;
+    setPendingStickerId(id);
+    try {
+      await persistDecrement(id);
+    } finally {
+      setPendingStickerId(null);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -306,7 +319,12 @@ export default function StickersClient({
           {filtered.length !== 1 && "s"}
         </p>
 
-        <StickerGrid stickers={filtered} onIncrement={increment} onDecrement={decrement} />
+        <StickerGrid
+          stickers={filtered}
+          pendingStickerId={pendingStickerId}
+          onIncrement={increment}
+          onDecrement={decrement}
+        />
       </main>
     </div>
   );

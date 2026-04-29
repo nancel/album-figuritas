@@ -1,16 +1,22 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Sticker } from "@/types/sticker";
 
 interface StickerCardProps {
   sticker: Sticker;
-  onIncrement: (id: string) => void;
-  onDecrement: (id: string) => void;
+  isSaving?: boolean;
+  onIncrement: (id: string) => void | Promise<void>;
+  onDecrement: (id: string) => void | Promise<void>;
 }
 
-export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardProps) {
+export function StickerCard({
+  sticker,
+  isSaving = false,
+  onIncrement,
+  onDecrement,
+}: StickerCardProps) {
   const isMissing   = sticker.quantity === 0;
   const isDuplicate = sticker.quantity > 1;
   const isOwned     = sticker.quantity === 1;
@@ -63,13 +69,15 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
       {/* Qty controls */}
       <div className="flex items-center justify-between mt-auto gap-2">
         <button
-          onClick={() => onDecrement(sticker.id)}
-          disabled={sticker.quantity === 0}
+          type="button"
+          onClick={() => void onDecrement(sticker.id)}
+          disabled={sticker.quantity === 0 || isSaving}
           aria-label={`Quitar una figurita de ${sticker.name}`}
+          aria-busy={isSaving}
           className={cn(
             "flex h-7 w-7 items-center justify-center rounded-full border transition-all",
             "active:scale-90",
-            sticker.quantity === 0
+            sticker.quantity === 0 || isSaving
               ? "cursor-not-allowed border-border text-muted-foreground/40"
               : "border-border bg-card text-foreground hover:bg-muted"
           )}
@@ -77,21 +85,35 @@ export function StickerCard({ sticker, onIncrement, onDecrement }: StickerCardPr
           <Minus className="h-3 w-3" />
         </button>
 
-        <span className={cn(
-          "font-display text-lg font-bold w-6 text-center leading-none",
-          isMissing   && "text-muted-foreground/50",
-          isOwned     && "text-primary",
-          isDuplicate && "text-yellow-600"
-        )}>
+        <span
+          className={cn(
+            "font-display text-lg font-bold min-w-[1.5rem] text-center leading-none tabular-nums",
+            isMissing && "text-muted-foreground/50",
+            isOwned && "text-primary",
+            isDuplicate && "text-yellow-600"
+          )}
+        >
           {sticker.quantity}
         </span>
 
         <button
-          onClick={() => onIncrement(sticker.id)}
+          type="button"
+          onClick={() => void onIncrement(sticker.id)}
+          disabled={isSaving}
           aria-label={`Añadir una figurita de ${sticker.name}`}
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-primary bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-90"
+          aria-busy={isSaving}
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded-full border border-primary bg-primary text-primary-foreground transition-all active:scale-90",
+            isSaving
+              ? "cursor-not-allowed opacity-60"
+              : "hover:bg-primary/90"
+          )}
         >
-          <Plus className="h-3 w-3" />
+          {isSaving ? (
+            <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+          ) : (
+            <Plus className="h-3 w-3" />
+          )}
         </button>
       </div>
     </div>

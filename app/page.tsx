@@ -49,14 +49,15 @@ export default function LoginPage() {
       }
       router.push("/dashboard");
       router.refresh();
+      return;
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : "No se pudo conectar. Comprobá las variables NEXT_PUBLIC_SUPABASE_* en .env.local."
       );
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
