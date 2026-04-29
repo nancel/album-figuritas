@@ -62,13 +62,20 @@ function sqlEscape(value) {
   return value.replaceAll("'", "''");
 }
 
+function normalizeCode(code) {
+  return code.replace(/^(.+?)(\d+)([a-z]*)$/i, (_match, prefix, rawNumber, suffix) => {
+    const normalizedNumber = String(Number.parseInt(rawNumber, 10));
+    return `${prefix}${normalizedNumber}${suffix}`;
+  });
+}
+
 function parseLine(line, knownCountries) {
   const parts = line.split(" - ").map((p) => p.trim());
   if (parts.length < 3) {
     throw new Error(`Formato inválido en línea: ${line}`);
   }
 
-  const code = parts[0];
+  const code = normalizeCode(parts[0]);
   const type = parts.at(-1);
   const middle = parts.slice(1, -1);
 
