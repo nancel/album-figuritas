@@ -34,6 +34,7 @@ cp .env.example .env.local
 |----------|-----|
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave **anon** (solo esta en el cliente; no uses la `service_role` en la app) |
+| `NEXT_PUBLIC_AUTH_EMAIL_DOMAIN` | Dominio interno para login por usuario (ej: `nancel` -> `nancel@album.local`) |
 | `NEXT_PUBLIC_ALBUM_ID` | (Opcional) UUID del álbum si un usuario tiene varias membresías y querés fijar cuál usa la app |
 
 ### 3. Base de datos y seguridad
@@ -56,7 +57,16 @@ El comando genera:
 
 Luego ejecutá `supabase/seeds/2026_stickers_inserts.sql` en Supabase SQL Editor.
 
-En **Authentication → Providers**, habilitá **Email**. Si querés evitar altas vía API, desactivá **Sign up** en la configuración de Email. **No hay registro en la app:** creá usuarios en Authentication (o vía SQL) y asocialos al álbum:
+En **Authentication → Providers**, habilitá **Email**. Si querés evitar altas vía API, desactivá **Sign up** en la configuración de Email.
+
+El login de la app pide **usuario + contraseña**, y convierte ese usuario a email usando `NEXT_PUBLIC_AUTH_EMAIL_DOMAIN`:
+
+- Usuario ingresado: `nancel`
+- Email usado en Supabase: `nancel@album.local`
+
+Por eso, al crear cuentas en Supabase Auth, respetá ese formato (o ingresá email completo en el login si necesitás una excepción).
+
+**No hay registro en la app:** creá usuarios en Authentication (o vía SQL) y asocialos al álbum:
 
 ```sql
 INSERT INTO public.album_members (album_id, user_id)

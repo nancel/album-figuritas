@@ -9,22 +9,35 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const authEmailDomain =
+    process.env.NEXT_PUBLIC_AUTH_EMAIL_DOMAIN?.trim().toLowerCase() || "album.local";
+
+  function resolveLoginEmail(rawUsername: string) {
+    const normalized = rawUsername.trim().toLowerCase();
+    if (normalized.includes("@")) {
+      return normalized;
+    }
+    return `${normalized}@${authEmailDomain}`;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
+    const normalizedUsername = username.trim();
+    if (!normalizedUsername || !password) {
       setError("Por favor completa todos los campos.");
       return;
     }
     setLoading(true);
     try {
       const supabase = createBrowserSupabaseClient();
+      const email = resolveLoginEmail(normalizedUsername);
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -80,16 +93,16 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
-                Correo
+              <label htmlFor="username" className="text-sm font-medium text-foreground">
+                Usuario
               </label>
               <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                autoComplete="username"
+                placeholder="ej: nancel"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className={cn(
                   "w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm outline-none",
                   "placeholder:text-muted-foreground/60",

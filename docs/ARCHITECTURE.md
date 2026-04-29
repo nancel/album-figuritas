@@ -68,6 +68,7 @@ We use the official SDK:
 ## 🔐 Authentication
 
 - Supabase Auth (email + password), **sign-in only** in the app (no sign-up UI)
+- Login UI uses `usuario + contraseña` and maps username to email (`usuario@NEXT_PUBLIC_AUTH_EMAIL_DOMAIN`)
 - New users are created outside the app (Supabase Auth UI / SQL / admin)
 - Session handled by Supabase (`@supabase/ssr`)
 
