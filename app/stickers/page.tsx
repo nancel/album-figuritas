@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { NoAlbumAccess } from "@/components/no-album-access";
@@ -30,8 +29,6 @@ export default async function Page() {
   ]);
 
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <StickersClient initialStickers={initialStickers} albumId={albumId} albumTitle={albumRow?.name ?? null} />
-    </Suspense>
+    <StickersClient initialStickers={initialStickers} albumId={albumId} albumTitle={albumRow?.name ?? null} />
   );
 }
