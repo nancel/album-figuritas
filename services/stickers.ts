@@ -1,4 +1,38 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Sticker } from "@/types/sticker";
+
+/** Fila devuelta por `get_album_stickers_catalog` (PostgREST / RPC). */
+type AlbumStickersCatalogRow = {
+  id: string;
+  code: string;
+  name: string;
+  country: string | null;
+  type: string;
+  quantity: number;
+};
+
+/**
+ * Catálogo completo del álbum con cantidades en una sola ida a la base (RPC + JOIN).
+ * Sustituye el patrón anterior de varias consultas paginadas a `stickers` y `album_sticker_quantities`.
+ */
+export async function fetchAlbumStickersWithQuantities(
+  supabase: SupabaseClient,
+  albumId: string
+): Promise<Sticker[]> {
+  const { data, error } = await supabase.rpc("get_album_stickers_catalog", {
+    p_album_id: albumId,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as AlbumStickersCatalogRow[];
+  return rows.map((row) => ({
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    country: row.country,
+    type: row.type,
+    quantity: row.quantity,
+  }));
+}
 
 export type StickerCatalogRow = {
   id: string;
