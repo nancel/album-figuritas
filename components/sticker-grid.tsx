@@ -6,7 +6,7 @@ import { StickerCard } from "@/components/sticker-card";
 interface StickerGridProps {
   stickers: Sticker[];
   pendingStickerId: string | null;
-  onIncrement: (id: string) => void | Promise<void>;
+  onIncrement: (id: string, country: string | null) => void | Promise<void>;
   onDecrement: (id: string) => void | Promise<void>;
 }
 

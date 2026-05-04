@@ -8,6 +8,7 @@ import { logStickerQuantityEvent } from "@/lib/quantity-event-log";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { Navbar } from "@/components/navbar";
 import { StickerGrid } from "@/components/sticker-grid";
+import { fireArgentinaConfetti, isArgentinaCountry } from "@/lib/argentina-confetti";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "owned" | "missing" | "duplicates";
@@ -47,7 +48,7 @@ export default function StickersClient({
   }, [searchParams]);
 
   const persistIncrement = useCallback(
-    async (id: string) => {
+    async (id: string): Promise<boolean> => {
       setSyncError(null);
       const supabase = createBrowserSupabaseClient();
 
@@ -60,7 +61,7 @@ export default function StickersClient({
 
       if (readErr) {
         setSyncError(readErr.message);
-        return;
+        return false;
       }
 
       const currentQty = row?.quantity ?? 0;
@@ -87,22 +88,22 @@ export default function StickersClient({
               .eq("sticker_id", id);
             if (upErr) {
               setSyncError(upErr.message);
-              return;
+              return false;
             }
             await logStickerQuantityEvent(supabase, albumId, id, +1);
             setStickers((prev) =>
               prev.map((s) => (s.id === id ? { ...s, quantity: q } : s))
             );
-            return;
+            return true;
           }
           setSyncError(error.message);
-          return;
+          return false;
         }
         await logStickerQuantityEvent(supabase, albumId, id, +1);
         setStickers((prev) =>
           prev.map((s) => (s.id === id ? { ...s, quantity: 1 } : s))
         );
-        return;
+        return true;
       }
 
       const next = currentQty + 1;
@@ -114,12 +115,13 @@ export default function StickersClient({
 
       if (error) {
         setSyncError(error.message);
-        return;
+        return false;
       }
       await logStickerQuantityEvent(supabase, albumId, id, +1);
       setStickers((prev) =>
         prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
       );
+      return true;
     },
     [albumId]
   );
@@ -181,11 +183,14 @@ export default function StickersClient({
     [albumId]
   );
 
-  async function increment(id: string) {
+  async function increment(id: string, country: string | null) {
     if (pendingStickerId) return;
     setPendingStickerId(id);
     try {
-      await persistIncrement(id);
+      const ok = await persistIncrement(id);
+      if (ok && isArgentinaCountry(country)) {
+        fireArgentinaConfetti();
+      }
     } finally {
       setPendingStickerId(null);
     }

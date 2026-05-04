@@ -7,7 +7,7 @@ import type { Sticker } from "@/types/sticker";
 interface StickerCardProps {
   sticker: Sticker;
   isSaving?: boolean;
-  onIncrement: (id: string) => void | Promise<void>;
+  onIncrement: (id: string, country: string | null) => void | Promise<void>;
   onDecrement: (id: string) => void | Promise<void>;
 }
 
@@ -98,7 +98,7 @@ export function StickerCard({
 
         <button
           type="button"
-          onClick={() => void onIncrement(sticker.id)}
+          onClick={() => void onIncrement(sticker.id, sticker.country)}
           disabled={isSaving}
           aria-label={`Añadir una figurita de ${sticker.name}`}
           aria-busy={isSaving}
