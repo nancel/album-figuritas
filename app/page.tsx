@@ -169,6 +169,7 @@ export default function LoginPage() {
             Las cuentas se crean manualmente, pedir al tío néstor que te cree una.
           </p>
         </div>
+
       </div>
     </main>
   );

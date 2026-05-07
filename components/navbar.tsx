@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { LayoutDashboard, LayoutGrid, Loader2, LogOut } from "lucide-react";
+import { CalendarDays, LayoutDashboard, LayoutGrid, Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 const navItems = [
   { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
   { href: "/stickers", label: "Colección", icon: LayoutGrid },
+  { href: "/fixture", label: "Fixture", icon: CalendarDays },
 ];
 
 export function Navbar() {

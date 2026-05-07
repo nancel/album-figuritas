@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Globe2, History, Star, TrendingUp } from "lucide-react";
 import { ProgressBar } from "@/components/progress-bar";
 import { SummaryCards } from "@/components/summary-cards";
+import { getFlagByTeamName } from "@/lib/worldcup-teams";
 import type { RecentQuantityChange } from "@/services/quantity-events";
 import { computeAlbumStats } from "@/services/stickers";
 import type { Sticker } from "@/types/sticker";
@@ -170,7 +171,10 @@ export function DashboardMain({
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-foreground truncate">{name}</span>
+                  <span className="text-sm font-medium text-foreground truncate inline-flex items-center gap-1.5">
+                    <span aria-hidden>{getFlagByTeamName(name)}</span>
+                    {name}
+                  </span>
                   <span className="text-xs font-medium text-muted-foreground ml-2 shrink-0">
                     {cOwned}/{cTotal}
                   </span>
