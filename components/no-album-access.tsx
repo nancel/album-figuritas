@@ -8,9 +8,9 @@ export function NoAlbumAccess() {
         Sin álbum asignado
       </h1>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        Tu usuario no está asociado a ningún álbum compartido, o el identificador configurado en la app no
-        coincide con una membresía tuya. Pedí a quien administra la base que inserte tu usuario en{" "}
-        <code className="rounded bg-muted px-1 py-0.5 text-xs">album_members</code> o revisá{" "}
+        Tu usuario no figura en ningún álbum compartido. Pedí a quien administra la base que te agregue en{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">album_members</code>. Si tenés más de un álbum
+        y la app usa uno fijo, revisá{" "}
         <code className="rounded bg-muted px-1 py-0.5 text-xs">NEXT_PUBLIC_ALBUM_ID</code> en{" "}
         <code className="rounded bg-muted px-1 py-0.5 text-xs">.env.local</code>.
       </p>

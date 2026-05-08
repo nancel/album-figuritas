@@ -91,6 +91,16 @@ function parseLine(line, knownCountries) {
   return { code, name, country, type };
 }
 
+function shouldIncludeSticker(type) {
+  const normalizedType = type.trim().toLowerCase();
+  if (normalizedType.includes("mcdonald")) return false;
+  if (normalizedType.startsWith("extra")) return false;
+  if (normalizedType.includes("silver")) return false;
+  if (normalizedType.includes("gold")) return false;
+  if (normalizedType.includes("bronze")) return false;
+  return true;
+}
+
 function main() {
   const raw = readFileSync(INPUT_PATH, "utf8");
   const lines = raw
@@ -107,7 +117,9 @@ function main() {
     }
   }
 
-  const rows = lines.map((line) => parseLine(line, knownCountries));
+  const rows = lines
+    .map((line) => parseLine(line, knownCountries))
+    .filter((row) => shouldIncludeSticker(row.type));
   const countries = [...new Set(rows.map((row) => row.country).filter(Boolean))].sort((a, b) =>
     a.localeCompare(b)
   );
