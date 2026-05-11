@@ -224,15 +224,23 @@ export default function StickersClient({
     return list;
   }, [stickers, activeFilter, search]);
 
-  const counts = useMemo(
-    () => ({
+  const counts = useMemo(() => {
+    let duplicateTypes = 0;
+    let duplicateExtras = 0;
+    for (const s of stickers) {
+      if (s.quantity > 1) {
+        duplicateTypes += 1;
+        duplicateExtras += s.quantity - 1;
+      }
+    }
+    return {
       all: stickers.length,
       owned: stickers.filter((s) => s.quantity >= 1).length,
       missing: stickers.filter((s) => s.quantity === 0).length,
-      duplicates: stickers.filter((s) => s.quantity > 1).length,
-    }),
-    [stickers]
-  );
+      duplicates: duplicateTypes,
+      duplicateExtras,
+    };
+  }, [stickers]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -318,6 +326,16 @@ export default function StickersClient({
             </button>
           ))}
         </div>
+
+        {counts.duplicateExtras > 0 ? (
+          <p className="text-xs text-muted-foreground leading-snug">
+            Duplicados:{" "}
+            <strong className="text-foreground tabular-nums">{counts.duplicateExtras}</strong>{" "}
+            copias de más en total, repartidas en{" "}
+            <strong className="text-foreground tabular-nums">{counts.duplicates}</strong> figurita
+            {counts.duplicates !== 1 ? "s" : ""} distinta{counts.duplicates !== 1 ? "s" : ""}.
+          </p>
+        ) : null}
 
         <p className="text-xs text-muted-foreground">
           Mostrando <strong className="text-foreground">{filtered.length}</strong> figurita

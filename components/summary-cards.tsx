@@ -7,10 +7,17 @@ interface SummaryCardsProps {
   total: number;
   owned: number;
   missing: number;
-  duplicates: number;
+  duplicateTypes: number;
+  duplicateExtras: number;
 }
 
-export function SummaryCards({ total, owned, missing, duplicates }: SummaryCardsProps) {
+export function SummaryCards({
+  total,
+  owned,
+  missing,
+  duplicateTypes,
+  duplicateExtras,
+}: SummaryCardsProps) {
   const cards = [
     {
       label: "Tengo",
@@ -30,8 +37,11 @@ export function SummaryCards({ total, owned, missing, duplicates }: SummaryCards
     },
     {
       label: "Duplicados",
-      value: duplicates,
-      sub: "para intercambiar",
+      value: duplicateExtras,
+      sub:
+        duplicateTypes > 0
+          ? `en ${duplicateTypes} figurita${duplicateTypes !== 1 ? "s" : ""} distinta${duplicateTypes !== 1 ? "s" : ""}`
+          : "para intercambiar",
       icon: Copy,
       colorClass: "text-accent-foreground bg-accent/40",
       textClass: "text-yellow-700",

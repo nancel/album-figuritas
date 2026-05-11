@@ -66,7 +66,10 @@ export type AlbumStats = {
   total: number;
   owned: number;
   missing: number;
-  duplicates: number;
+  /** Casilleros del álbum con más de una copia (cuántas figuritas distintas tienen duplicado). */
+  duplicateTypes: number;
+  /** Total de copias que sobran para el álbum: suma de (cantidad − 1) cuando cantidad > 1. */
+  duplicateExtras: number;
   progress: number;
   countryStats: {
     name: string;
@@ -80,7 +83,14 @@ export function computeAlbumStats(stickers: Sticker[]): AlbumStats {
   const total = stickers.length;
   const owned = stickers.filter((s) => s.quantity >= 1).length;
   const missing = stickers.filter((s) => s.quantity === 0).length;
-  const duplicates = stickers.filter((s) => s.quantity > 1).length;
+  let duplicateTypes = 0;
+  let duplicateExtras = 0;
+  for (const s of stickers) {
+    if (s.quantity > 1) {
+      duplicateTypes += 1;
+      duplicateExtras += s.quantity - 1;
+    }
+  }
   const progress = total ? (owned / total) * 100 : 0;
 
   const byCountry = stickers.reduce<
@@ -101,5 +111,5 @@ export function computeAlbumStats(stickers: Sticker[]): AlbumStats {
     }))
     .sort((a, b) => b.pct - a.pct);
 
-  return { total, owned, missing, duplicates, progress, countryStats };
+  return { total, owned, missing, duplicateTypes, duplicateExtras, progress, countryStats };
 }

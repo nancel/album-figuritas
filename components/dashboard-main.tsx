@@ -19,7 +19,7 @@ export function DashboardMain({
   albumTitle?: string | null;
   recentChanges: RecentQuantityChange[];
 }) {
-  const { owned, missing, duplicates, progress, countryStats, total } =
+  const { owned, missing, duplicateTypes, duplicateExtras, progress, countryStats, total } =
     computeAlbumStats(stickers);
 
   return (
@@ -59,7 +59,13 @@ export function DashboardMain({
         <h2 id="summary-heading" className="sr-only">
           Resumen del Álbum
         </h2>
-        <SummaryCards total={total} owned={owned} missing={missing} duplicates={duplicates} />
+        <SummaryCards
+          total={total}
+          owned={owned}
+          missing={missing}
+          duplicateTypes={duplicateTypes}
+          duplicateExtras={duplicateExtras}
+        />
       </section>
 
       <section aria-labelledby="recent-heading">
@@ -148,7 +154,9 @@ export function DashboardMain({
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">Duplicados para Intercambiar</p>
               <p className="text-xs text-muted-foreground">
-                {duplicates} figuritas disponibles para intercambio
+                {duplicateExtras > 0
+                  ? `${duplicateExtras} copias de más en ${duplicateTypes} figurita${duplicateTypes !== 1 ? "s" : ""}`
+                  : "Sin copias de más por ahora"}
               </p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
